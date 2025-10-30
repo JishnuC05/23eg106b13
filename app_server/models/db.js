@@ -1,12 +1,15 @@
- const mongoose = require('mongoose');
-let dbURI = 'mongodb://localhost/Loc8r';
-if (process.env.NODE_ENV === 'production') {
-  // Use environment variable if available, otherwise use a fallback that won't crash
-  if (process.env.MONGODB_URI) {
-    dbURI = process.env.MONGODB_URI;
-  } else {
-    console.log('No MONGODB_URI environment variable found, using local database...');
+const mongoose = require('mongoose');
+let dbURI;
+if (process.env.MONGODB_URI) {
+  dbURI = process.env.MONGODB_URI;
+} else {
+  // For development only: use local database
+  if (process.env.NODE_ENV !== 'production') {
     dbURI = 'mongodb://localhost/Loc8r';
+  } else {
+    // In production without MONGODB_URI, don't connect to avoid errors
+    console.log('No MONGODB_URI environment variable found in production. Skipping database connection.');
+    return; // Exit early, don't connect
   }
 }
 mongoose.connect(dbURI).catch(err => {
